@@ -104,22 +104,12 @@ class MyCallbacks5 : public BLECharacteristicCallbacks {
   }
 };
 
-void controlLED(int reading) {
-  if (reading < 100) {
-    digitalWrite(6, HIGH); 
-  } else {
-    digitalWrite(6, LOW);
-  }
-}
-
 void setup() {
   Serial.begin(115200);
   sensor.init();
   pinMode(2, INPUT);  //PIN senzor vlage
   pinMode(4, INPUT); //PIN pH senzor
 
-  pinMode(6, OUTPUT); //LED
-  
   shtcSensor.begin();
 
 
@@ -208,8 +198,6 @@ void loop() {
 
   temperature_reading = tempReading;
   humidity_reading = humidityReading;
-
-  controlLED(light_reading);
 
   Serial.print("Očitanje vlage tla: ");
   Serial.println(water_reading);

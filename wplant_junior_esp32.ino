@@ -105,7 +105,7 @@ class MyCallbacks5 : public BLECharacteristicCallbacks {
 };
 
 void controlLED(int reading) {
-  if (reading > 100) {
+  if (reading < 100) {
     digitalWrite(6, HIGH); 
   } else {
     digitalWrite(6, LOW);
@@ -117,7 +117,9 @@ void setup() {
   sensor.init();
   pinMode(2, INPUT);  //PIN senzor vlage
   pinMode(4, INPUT); //PIN pH senzor
-  pinMode(6, OUTPUT); //LED?
+
+  pinMode(6, OUTPUT); //LED
+  
   shtcSensor.begin();
 
 
@@ -204,11 +206,16 @@ void loop() {
   pH_reading = analogRead(4);
   light_reading = sensor.getLightIntensity();
 
-  //handle implicit cast to uint16
   temperature_reading = tempReading;
   humidity_reading = humidityReading;
 
-  controlLED(humidityReading);
+  controlLED(light_reading);
+
+  Serial.println("Očitanje vlage tla %d", water_reading);
+  Serial.println("Očitanje vlage zraka %d", humidityReading);
+  Serial.println("Očitanje temperature %d", tempReading);
+  Serial.println("Očitanje svjetlosti %d", light_reading);
+  Serial.println("Očitanje pH vrijednosti %d", pH_reading);
 
 
   //BLE Advertise

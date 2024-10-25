@@ -211,11 +211,20 @@ void loop() {
 
   controlLED(light_reading);
 
-  Serial.println("Očitanje vlage tla %d", water_reading);
-  Serial.println("Očitanje vlage zraka %d", humidityReading);
-  Serial.println("Očitanje temperature %d", tempReading);
-  Serial.println("Očitanje svjetlosti %d", light_reading);
-  Serial.println("Očitanje pH vrijednosti %d", pH_reading);
+  Serial.print("Očitanje vlage tla: ");
+  Serial.println(water_reading);
+
+  Serial.print("Očitanje vlage zraka: ");
+  Serial.println(humidityReading);
+
+  Serial.print("Očitanje temperature: ");
+  Serial.println(tempReading);
+
+  Serial.print("Očitanje svjetlosti: ");
+  Serial.println(light_reading);
+
+  Serial.print("Očitanje pH vrijednosti: ");
+  Serial.println(pH_reading);
 
 
   //BLE Advertise

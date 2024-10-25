@@ -14,6 +14,7 @@
 #define CHARACTERISTIC_UUID_4 "beb5483e-36e1-4688-b7f5-ea07361b26a1"
 #define CHARACTERISTIC_UUID_5 "beb5483e-36e1-4688-b7f5-ea07361b26a5"  
 
+
 BLEServer *pServer;
 BLEService *pService;
 BLECharacteristic *pCharacteristic1;  
@@ -24,8 +25,6 @@ BLECharacteristic *pCharacteristic5;
 
 LTR507 sensor;
 SHTC3 shtcSensor;
-
-
 
 int characteristicValue1 = 0;
 int characteristicValue2 = 0;
@@ -105,13 +104,24 @@ class MyCallbacks5 : public BLECharacteristicCallbacks {
   }
 };
 
+void controlLED(int reading) {
+  if (reading > 100) {
+    digitalWrite(6, HIGH); 
+  } else {
+    digitalWrite(6, LOW);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   sensor.init();
-  pinMode(2, INPUT);
-  pinMode(4, INPUT);
+  pinMode(2, INPUT);  //PIN senzor vlage
+  pinMode(4, INPUT); //PIN pH senzor
+  pinMode(6, OUTPUT); //LED?
   shtcSensor.begin();
 
+
+  //BLE Setup and charactristics
   BLEDevice::init("ICSE-FER Sensor 1");
 
   pServer = BLEDevice::createServer();
@@ -182,37 +192,39 @@ void setup() {
 void loop() {
   shtcSensor.sample();
   uint16_t water_reading = 1230;
-  uint16_t lightReading = 1231;
-  uint16_t newReading1 = 1232;
-  uint16_t newReading2 = 1233;
-  uint16_t newReading3 = 1234;
+  uint16_t light_reading = 1231;
+  uint16_t temperature_reading = 1232;
+  uint16_t humidity_reading = 1233;
+  uint16_t pH_reading = 1234;
 
   int tempReading = shtcSensor.readTempC();
-  newReading1 = tempReading;
-
   int humidityReading = shtcSensor.readHumidity();
-  newReading2 = humidityReading;
 
-  newReading3 = analogRead(4);
-
-  lightReading = sensor.getLightIntensity();
   water_reading = analogRead(2);
+  pH_reading = analogRead(4);
+  light_reading = sensor.getLightIntensity();
+
+  //handle implicit cast to uint16
+  temperature_reading = tempReading;
+  humidity_reading = humidityReading;
+
+  controlLED(humidityReading);
 
 
-  pCharacteristic1->setValue((uint8_t *)&lightReading, sizeof(uint16_t));
+  //BLE Advertise
+  pCharacteristic1->setValue((uint8_t *)&light_reading, sizeof(uint16_t));  //karakteristika za svjetlost
   pCharacteristic1->notify();
 
-  pCharacteristic2->setValue((uint8_t *)&water_reading, sizeof(uint16_t));
+  pCharacteristic2->setValue((uint8_t *)&water_reading, sizeof(uint16_t)); //karakteristika za vlaznost tla
   pCharacteristic2->notify();
 
-
-  pCharacteristic3->setValue((uint8_t *)&newReading1, sizeof(uint16_t));
+  pCharacteristic3->setValue((uint8_t *)&temperature_reading, sizeof(uint16_t)); //karakteristika za temepraturu zraka
   pCharacteristic3->notify();
 
-  pCharacteristic4->setValue((uint8_t *)&newReading2, sizeof(uint16_t));
+  pCharacteristic4->setValue((uint8_t *)&humidity_reading, sizeof(uint16_t)); //karakteristika za vlagu zraka
   pCharacteristic4->notify();
 
-  pCharacteristic5->setValue((uint8_t *)&newReading3, sizeof(uint16_t));
+  pCharacteristic5->setValue((uint8_t *)&pH_reading, sizeof(uint16_t)); //karakteristika za pH vrijednost
   pCharacteristic5->notify();
 
   delay(500);
